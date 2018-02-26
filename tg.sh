@@ -3,11 +3,11 @@
 # Telegram bot's token
 botToken=""
 # spigot directory absolute path with slash at the end
-spigot="/home/mcserver/spigot/"
+spigot="/home/spigot/"
 # user who will be able to send commands
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
-chatID="-244449217"
+chatID=""
 # ID of chat which will get the entire server log (user or group)
 adminChatID=""
 
@@ -52,14 +52,14 @@ do
   # send everything to the admin chat on Telegram...
   result=$(curl -H "Content-Type: application/json" -d '{"chat_id":138268771,"text":"'"$line"'"}' $tgURL"sendMessage")
   # and log server response (for debugging)
-  echo $result | jq . >> tg.log
+  echo $result | jq . >> tg/tg.log
 
 
   # choose the lines which contain chat messages
   line=$(echo "$line" | grep "Chat Thread")
   if [ -n "$line" ]
   then
-	# remove unneeded parts of the message, leave time
+    # remove unneeded parts of the message, leave time
     line=$(echo "$line" | sed 's/^\(\[..:..:..\] \)[^<]*</\1</g')
     # send that to the non-admin chat on Telegram
     result=$(curl -H "Content-Type: application/json" -d '{"chat_id":'"$chatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
@@ -105,7 +105,7 @@ do
     # if the message was sent by the admin, check if it's a command...
     if [ "$username" = "$adminUsername" ]
     then
-	  # if it's a command, remove "say", username and slash
+      # if it's a command, remove "say", username and slash
       messageToSend=$(echo $messageToSend | sed 's/^say <<'"$adminUsername"'>> \///g')
     fi
 
