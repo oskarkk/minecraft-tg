@@ -4,18 +4,15 @@ After=network.target
 
 [Service]
 WorkingDirectory=/home/mcserver/spigot/
-#PrivateUsers=true
 User=mcserver
 Group=mcserver
 ProtectSystem=full
-#ProtectHome=true
-#ProtectHome=false
 
 ExecStart=/bin/sh -c 'screen -DmS spigot /home/mcserver/spigot/start.sh'
 
 ExecReload=/usr/bin/screen -p 0 -S spigot -X eval 'stuff "reload"\\015'
 
-ExecStop=/usr/bin/screen -p 0 -S spigot -X eval 'stuff "say Uwaga, za 30 sekund Oskar wylacza serwer."\\015'
+ExecStop=/usr/bin/screen -p 0 -S spigot -X eval 'stuff "say Server is closing in 30 seconds"\\015'
 ExecStop=/bin/sleep 30
 ExecStop=/usr/bin/screen -p 0 -S spigot -X eval 'stuff "save-all"\\015'
 ExecStop=/usr/bin/screen -p 0 -S spigot -X eval 'stuff "stop"\\015'

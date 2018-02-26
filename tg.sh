@@ -3,7 +3,7 @@
 # Telegram bot's token
 botToken=""
 # spigot directory absolute path with slash at the end
-spigot="/home/spigot/"
+spigot="/home/mcserver/spigot/"
 # user who will be able to send commands
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
@@ -27,8 +27,6 @@ while true
 do
 
 
-
-
 #
 # Spigot server -> Telegram
 #
@@ -50,9 +48,9 @@ do
   line=${line//\"/\\\"}
 
   # send everything to the admin chat on Telegram...
-  result=$(curl -H "Content-Type: application/json" -d '{"chat_id":138268771,"text":"'"$line"'"}' $tgURL"sendMessage")
+  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":138268771,"text":"'"$line"'"}' $tgURL"sendMessage")
   # and log server response (for debugging)
-  echo $result | jq . >> tg/tg.log
+  echo $result | jq . >> tg/json.log
 
 
   # choose the lines which contain chat messages
@@ -62,9 +60,9 @@ do
     # remove unneeded parts of the message, leave time
     line=$(echo "$line" | sed 's/^\(\[..:..:..\] \)[^<]*</\1</g')
     # send that to the non-admin chat on Telegram
-    result=$(curl -H "Content-Type: application/json" -d '{"chat_id":'"$chatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
+    result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$chatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
     # log server response (for debugging)
-    echo $result | jq . >> tg/tg.log
+    echo $result | jq . >> tg/json.log
   fi
 
 done
@@ -81,14 +79,14 @@ cp tg/current.log tg/last.log
 #
 
 # get the first message from bot
-json=$(curl $tgURL"getUpdates?limit=1")
+json=$(curl -s $tgURL"getUpdates?limit=1")
 
 # loop which sends the message from bot to the server and gets the next messages
 while (( $(echo $json | jq '.result | length') == 1 ))
 do
 
   # log JSON data (for debugging)
-  echo $json | jq . >> tg/tg.log
+  echo $json | jq . >> tg/json.log
   # get message ID from JSON
   id=$(echo $json | jq -r '.result[].update_id')
   # get message content from JSON
@@ -114,7 +112,7 @@ do
   fi
 
   # get the next message from bot
-  json=$(curl $tgURL"getUpdates?limit=1&offset="$((id + 1)) )
+  json=$(curl -s $tgURL"getUpdates?limit=1&offset="$((id + 1)) )
 
 done
 
