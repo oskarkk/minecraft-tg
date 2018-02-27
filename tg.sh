@@ -7,7 +7,7 @@ spigot="/home/mcserver/spigot/"
 # user who will be able to send commands
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
-chatID=""
+messageChatID=""
 # ID of chat which will get the entire server log (user or group)
 adminChatID=""
 
@@ -48,7 +48,7 @@ do
   line=${line//\"/\\\"}
 
   # send everything to the admin chat on Telegram...
-  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":138268771,"text":"'"$line"'"}' $tgURL"sendMessage")
+  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$adminChatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
   # and log server response (for debugging)
   echo $result | jq . >> tg/json.log
 
@@ -60,7 +60,7 @@ do
     # remove unneeded parts of the message, leave time
     line=$(echo "$line" | sed 's/^\(\[..:..:..\] \)[^<]*</\1</g')
     # send that to the non-admin chat on Telegram
-    result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$chatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
+    result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$messageChatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
     # log server response (for debugging)
     echo $result | jq . >> tg/json.log
   fi
@@ -92,23 +92,31 @@ do
   # get message content from JSON
   message=$(echo $json | jq -r '.result[].message.text')
 
+  # get chat ID from JSON
+  chatID=$(echo $json | jq -r '.result[].message.chat.id')
+
   # if the meesage has content (if it hasn't it's image for example)
-  if [ "$message" != "null" ]
+  # and it's from admin or message chat on Telegram
+  if [[ "$message" != "null" ]] && [[ "$chatID" = "$messageChatID" || "$chatID" = "$adminChatID" ]]
   then
+    # escape dollar sign
+    message=${message//$/\"$\"}
+
     # get sender's username from JSON
     username=$(echo $json | jq -r '.result[].message.from.username')
-    # add "say" and username to the message
-    messageToSend="say <<"$username">> "$message
 
-    # if the message was sent by the admin, check if it's a command...
-    if [ "$username" = "$adminUsername" ]
+    # if the message was sent by the admin and it's a command...
+    if [[ "$username" = "$adminUsername" ]] && [[ "$message" =~ ^/ ]]
     then
-      # if it's a command, remove "say", username and slash
-      messageToSend=$(echo $messageToSend | sed 's/^say <<'"$adminUsername"'>> \///g')
+      # if it's a command, remove slash
+      message=$(echo $message | sed 's/^\///g')
+    else
+      # add "say" and username to the message
+      message="say <<"$username">> "$message
     fi
 
     # send message to the spigot server through screen, the terminal manager
-    screen -p 0 -S spigot -X eval "stuff "'\042'"$messageToSend"'\042'"\\015"
+    screen -p 0 -S spigot -X eval "stuff "'\042'"$message"'\042'"\\015"
   fi
 
   # get the next message from bot
