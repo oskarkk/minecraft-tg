@@ -2,7 +2,7 @@
 
 Bash script which links chats in Telegram messenger with in-game chat on Spigot Minecraft server. Every chat message on the Minecraft server is sent to the selected Telegram chat and every message from that chat is sent to the Minecraft server.
 
-Selected chat gets the entire server log sent to it live.
+Another selected chat gets the entire server log sent to it live.
 
 If selected user starts his message on Telegram with slash, it's sent to the server as command. Effects of that command can be seen in the chat which gets server log.
 
@@ -18,7 +18,7 @@ If selected user starts his message on Telegram with slash, it's sent to the ser
 
 * botToken - Telegram bot's token
 
-* spigot - spigot directory absolute path with slash at the end
+* spigot - spigot directory absolute path with slash at the end (tg.sh will make directory "tg" for its files there)
 
 * adminUsername - user who will be able to send commands
 
