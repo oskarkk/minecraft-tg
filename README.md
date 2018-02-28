@@ -6,6 +6,8 @@ Every chat message on the Minecraft server is sent to the selected Telegram chat
 
 If selected user (admin) starts his message on Telegram with slash, it's sent to the server as a command. Effects of that command can be seen in the chat which gets server log.
 
+Script in action: https://imgur.com/a/yRjor
+
 # Usage
 
 At minimum, you must put chat IDs other configuration variables in the tg.sh and run it. Spigot must be run with [GNU screen](https://www.gnu.org/software/screen/manual/screen.html). Screen session must be named spigot for tg.sh to work correctly.
