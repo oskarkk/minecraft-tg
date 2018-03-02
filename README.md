@@ -10,7 +10,13 @@ Script in action: https://imgur.com/a/yRjor
 
 # Usage
 
-At minimum, you must put chat IDs other configuration variables in the tg.sh and run it. Spigot must be run with [GNU screen](https://www.gnu.org/software/screen/manual/screen.html). Screen session must be named spigot for tg.sh to work correctly.
+[First you must make a Telegram bot for your server.](https://core.telegram.org/bots#6-botfather) It's very easy, no coding required, everything's in the Telegram app. When you're done, start chat with your bot or make a group (and make your bot admin of that group so it can see the messages). Then you must edit tg.sh and put chat IDs and other configuration variables at the start of the file. Then run it.
+
+Spigot must be run with [GNU screen](https://www.gnu.org/software/screen/manual/screen.html). Screen session must be named "spigot" for tg.sh to work correctly. See file spigot.service for the exact command.
+
+When you will send message to the bot, it will appear in Spigot with some small delay (usually 0.5-2s).
+
+If you want tg.sh to run automatically with system startup you can use the spigottg.service file.
 
 # Files
 
@@ -28,7 +34,7 @@ At minimum, you must put chat IDs other configuration variables in the tg.sh and
 
 * adminUsername - user who will be able to send commands
 
-* messageChatID - ID of chat which will get messages from Minecraft (user or group chat)
+* messageChatID - ID of chat which will get messages from Minecraft (user ID or ID of group chat where )
 
 * adminChatID - ID of chat which will get the entire server log (user or group chat)
 
