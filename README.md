@@ -34,7 +34,7 @@ If you want tg.sh to run automatically with system startup you can use the spigo
 
 * adminUsername - user who will be able to send commands
 
-* messageChatID - ID of chat which will get messages from Minecraft (user ID or ID of group chat where )
+* messageChatID - ID of chat which will get messages from Minecraft (user or group chat)
 
 * adminChatID - ID of chat which will get the entire server log (user or group chat)
 
