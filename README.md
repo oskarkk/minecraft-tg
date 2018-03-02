@@ -32,6 +32,18 @@ At minimum, you must put chat IDs other configuration variables in the tg.sh and
 
 * adminChatID - ID of chat which will get the entire server log (user or group chat)
 
+# Dependencies
+
+* [curl](https://curl.haxx.se/)
+
+* [jq](https://stedolan.github.io/jq/)
+
+* [screen](https://www.gnu.org/software/screen/)
+
+To install:
+
+    sudo apt-get install screen jq curl
+
 # Links
 
 * [Telegram bot API](https://core.telegram.org/bots/api)
