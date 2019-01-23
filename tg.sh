@@ -15,7 +15,9 @@ adminChatID=""
 # bot API URL
 tgURL="https://api.telegram.org/bot"$botToken"/"
 # spigot log file relative path
-mclog="logs/latest.log"
+logfile="tg/temp.log"
+# chat log file relative path
+chatfile="tg/chat.temp.log"
 
 
 cd $spigot
@@ -31,44 +33,50 @@ do
 # Spigot server -> Telegram
 #
 
-# copy latest log file
-cp $mclog tg/current.log
-# leave only lines that aren't in the previous log copy and remove color formatting
-awk 'NR==FNR{a[$0]=1;next}!a[$0]' tg/last.log tg/current.log | sed 's/[\x1B][^m]*m//g' > tg/temp.log
+# copy and erase latest mc and chat log files to memory
+log=`cat $logfile`
+> $logfile
+chat=`cat $chatfile`
+> $chatfile
 
-# while temp.log isn't empty...
-while [[ -s tg/temp.log ]]
+# remove color formatting
+log=`echo -n "$log" | sed 's/[\x1B][^m]*m//g'`
+chat=`echo -n "$chat" | sed 's/[\x1B][^m]*m//g'`
+
+# escaping some chars
+log=${log//\\/\\\\}
+log=${log//\'/\\\'}
+log=${log//\"/\\\"}
+chat=${chat//\\/\\\\}
+chat=${chat/\'/\\\'}
+chat=${chat//\"/\\\"}
+
+# while log isn't empty...
+while [ ! -z "$log" ]
 do
-  # cut first 30 lines from it and put them to "line" variable
-  line=$(head -n 30 tg/temp.log)
-  echo -n "$(tail -n +31 tg/temp.log)" > tg/temp.log
-  # escaping some chars
-  line=${line//\\/\\\\}
-  line=${line//\'/\\\'}
-  line=${line//\"/\\\"}
+  # cut first 30 lines from it and put them to 'lines' variable
+  lines=`echo "$log" | head -n 30`
+  log=`echo "$log" | tail -n +31`
 
-  # send everything to the admin chat on Telegram...
-  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$adminChatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
+  # send 'lines' to the admin chat on Telegram...
+  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$adminChatID"',"text":"'"$lines"'"}' $tgURL"sendMessage")
   # and log server response (for debugging)
   echo $result | jq . >> tg/json.log
-
-
-  # choose the lines which contain chat messages
-  line=$(echo "$line" | grep "Chat Thread")
-  if [ -n "$line" ]
-  then
-    # remove unneeded parts of the message, leave time
-    line=$(echo "$line" | sed 's/^\(\[..:..:..\] \)[^<]*</\1</g')
-    # send that to the non-admin chat on Telegram
-    result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$messageChatID"',"text":"'"$line"'"}' $tgURL"sendMessage")
-    # log server response (for debugging)
-    echo $result | jq . >> tg/json.log
-  fi
-
 done
 
-# replace the previous log with the current log
-cp tg/current.log tg/last.log
+# while chat isn't empty...
+while [ ! -z "$chat" ]
+do
+  # cut first 30 lines from it and put them to 'lines' variable
+  lines=`echo "$chat" | head -n 30`
+  chat=`echo "$chat" | tail -n +31`
+
+  # send that to the non-admin chat on Telegram
+  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$messageChatID"',"text":"'"$lines"'"}' $tgURL"sendMessage")
+  # log server response (for debugging)
+  echo $result | jq . >> tg/json.log
+  echo penla2
+done
 
 
 
@@ -105,15 +113,26 @@ do
     # get sender's username from JSON
     username=$(echo $json | jq -r '.result[].message.from.username')
 
-    # if the message was sent by the admin and it's a command...
-    if [[ "$username" = "$adminUsername" ]] && [[ "$message" =~ ^/ ]]
-    then
-      # if it's a command, remove slash
-      message=$(echo $message | sed 's/^\///g')
-    else
-      # add "say" and username to the message
-      message="say <<"$username">> "$message
-    fi
+    # temp var
+    message2=""
+    # for every line in "message"
+    while read -r line; do
+
+      # if the message was sent by the admin and it's a command...
+      if [[ "$username" = "$adminUsername" ]] && [[ "$line" =~ ^/ ]]
+      then
+        # if it's a command, remove slash
+        line=$(echo "$line" | sed 's/^\///g')
+      else
+        # add "say" and username to the line
+        line="say <<""$username"">> ""$line"
+      fi
+
+      # add line to the message
+      message2="$message2""$line"$'\n'
+
+    done <<< "$message"
+    message="$message2"
 
     # send message to the spigot server through screen, the terminal manager
     screen -p 0 -S spigot -X eval "stuff "'\042'"$message"'\042'"\\015"

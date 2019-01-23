@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Entire configuration reloads from disk every 5 seconds -->
+<Configuration monitorInterval="5" status="WARN" packages="com.mojang.util">
+    
+    <!-- Defines destinations of log messages -->
+    <Appenders>
+
+        <!-- Output to console with pattern: [00:00:00 INFO]: Message -->
+        <Queue name="TerminalConsole">
+            <PatternLayout>
+				<Pattern>[%d{HH:mm:ss} %highlight{%level}] %msg%n</Pattern>
+			</PatternLayout>
+        </Queue>
+        
+        <!-- Output to rolling (latest.log) and auto-compressed files -->
+        <RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="[%d{HH:mm:ss}]: %msg%n" />
+            <Policies>
+                <!-- Moves and compresses latest.log to new file at midnight -->
+                <TimeBasedTriggeringPolicy />
+                <!-- Moves and compresses latest.log to new file on startup -->
+                <OnStartupTriggeringPolicy />
+            </Policies>
+            <DefaultRolloverStrategy max="1000"/>
+        </RollingRandomAccessFile>
+		
+		<!-- files for telegram-spigot connection -->
+		<File name="Chat" fileName="tg/chat.temp.log">
+            <PatternLayout pattern="%msg%n" />
+			<Filters>
+                <ScriptFilter onMatch="DENY" onMisMatch="NEUTRAL">
+                    <Script name="selector" language="javascript"><![CDATA[
+                    var result;
+                    if (logEvent.getThreadName().indexOf("Async Chat Thread") == -1) {
+                        result = true;
+                    } else {
+                        result = false;
+                    }
+                    result;
+                    ]]></Script>
+                </ScriptFilter>
+            </Filters>
+        </File>
+		<File name="Temp" fileName="tg/temp.log">
+            <PatternLayout pattern="%msg%n" />
+        </File>
+    </Appenders>
+  
+    <Loggers>
+        <!-- Global logger; affects every other logger. Restricts messages to INFO or higher level -->
+        <Root level="info">
+            <!-- Global filters -->
+            <Filters>
+                <!-- Disables logging of network packet handling -->
+                <MarkerFilter marker="NETWORK_PACKETS" onMatch="DENY" onMismatch="NEUTRAL" />
+                <!-- hide AuthMe login -->
+                <RegexFilter regex=".*issued server command: /l .*" onMatch="DENY" onMismatch="NEUTRAL"/>
+            </Filters>
+            
+            <!-- Logs to all 4 destinations -->
+            <AppenderRef ref="File"/>
+            <AppenderRef ref="TerminalConsole"/>
+            <AppenderRef ref="Chat"/>
+            <AppenderRef ref="Temp"/>
+        </Root>
+    </Loggers>
+</Configuration>
