@@ -7,80 +7,36 @@ spigot="/home/mcserver/spigot/"
 # user who will be able to send commands
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
-messageChatID=""
+chatID=""
 # ID of chat which will get the entire server log (user or group)
-adminChatID=""
+adminID=""
 
 
 # bot API URL
 tgURL="https://api.telegram.org/bot"$botToken"/"
 # spigot log file relative path
-logfile="tg/temp.log"
+logFile="$spigot/tg/temp.log"
 # chat log file relative path
-chatfile="tg/chat.temp.log"
-
-
-cd $spigot
-mkdir -p tg
+chatFile="$spigot/tg/chat.temp.log"
 
 
 # infinite loop
 while true
 do
 
-
 #
 # Spigot server -> Telegram
 #
 
-# copy and erase latest mc and chat log files to memory
-log=`cat $logfile`
-> $logfile
-chat=`cat $chatfile`
-> $chatfile
+# copy log files to memory
+log=`cat $logFile`
+chat=`cat $chatFile`
 
-# remove color formatting
-log=`echo -n "$log" | sed 's/[\x1B][^m]*m//g'`
-chat=`echo -n "$chat" | sed 's/[\x1B][^m]*m//g'`
-
-# escaping some chars
-log=${log//\\/\\\\}
-log=${log//\'/\\\'}
-log=${log//\"/\\\"}
-chat=${chat//\\/\\\\}
-chat=${chat/\'/\\\'}
-chat=${chat//\"/\\\"}
-
-# while log isn't empty...
-while [ ! -z "$log" ]
-do
-  # cut first 30 lines from it and put them to 'lines' variable
-  lines=`echo "$log" | head -n 30`
-  log=`echo "$log" | tail -n +31`
-
-  # send 'lines' to the admin chat on Telegram...
-  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$adminChatID"',"text":"'"$lines"'"}' $tgURL"sendMessage")
-  # and log server response (for debugging)
-  echo $result | jq . >> tg/json.log
-done
-
-# while chat isn't empty...
-while [ ! -z "$chat" ]
-do
-  # cut first 30 lines from it and put them to 'lines' variable
-  lines=`echo "$chat" | head -n 30`
-  chat=`echo "$chat" | tail -n +31`
-
-  # send that to the non-admin chat on Telegram
-  result=$(curl -sH "Content-Type: application/json" -d '{"chat_id":'"$messageChatID"',"text":"'"$lines"'"}' $tgURL"sendMessage")
-  # log server response (for debugging)
-  echo $result | jq . >> tg/json.log
-  echo penla2
-done
-
-
-
-
+if [[ ! -z "$log" || ! -z "$chat" ]]; then
+  > $logFile  # erase files
+  > $chatFile
+  python3 tg.py "$log" "$chat" "$adminID" "$chatID" >> json.log
+fi
 
 #
 # Telegram -> Spigot server
@@ -94,18 +50,18 @@ while (( $(echo $json | jq '.result | length') == 1 ))
 do
 
   # log JSON data (for debugging)
-  echo $json | jq . >> tg/json.log
+  echo $json | jq . >> json.log
   # get message ID from JSON
   id=$(echo $json | jq -r '.result[].update_id')
   # get message content from JSON
   message=$(echo $json | jq -r '.result[].message.text')
 
   # get chat ID from JSON
-  chatID=$(echo $json | jq -r '.result[].message.chat.id')
+  somechatID=$(echo $json | jq -r '.result[].message.chat.id')
 
   # if the meesage has content (if it hasn't it's image for example)
   # and it's from admin or message chat on Telegram
-  if [[ "$message" != "null" ]] && [[ "$chatID" = "$messageChatID" || "$chatID" = "$adminChatID" ]]
+  if [[ "$message" != "null" ]] && [[ "$somechatID" = "$chatID" || "$somechatID" = "$adminID" ]]
   then
     # escape dollar sign
     message=${message//$/\"$\"}
@@ -142,7 +98,6 @@ do
   json=$(curl -s $tgURL"getUpdates?limit=1&offset="$((id + 1)) )
 
 done
-
 
 
 # wait a second before sending requests again
