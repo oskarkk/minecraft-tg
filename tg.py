@@ -7,7 +7,7 @@ url = 'https://api.telegram.org/bot'+token+'/sendMessage'
 logs = [ sys.argv[1] ]
 if sys.argv[2]:
   logs.append(sys.argv[2])
-  # bold usernames with markdown
+  # change username font to monospace with markdown
   logs[1] = re.sub('(<.+>)', r'`\1`', logs[1], re.MULTILINE)
 
 for i, log in enumerate(logs):
