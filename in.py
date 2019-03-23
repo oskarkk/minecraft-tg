@@ -11,10 +11,10 @@ updatesNum = len(resp['result'])
 while ( updatesNum > 0 ):
   
   # stop if there are no more updates
-  if( updatesNum < 100 ):
-    break
+  #if( updatesNum < 100 ):
+  #  break
 
   # get the next updates
-  lastId = resp['result'][99]['update_id']
-  resp = requests.post( url+'offset='+(lastId + 1) )
+  lastID = resp['result'][-1]['update_id']
+  resp = requests.post( url+'offset='+(lastID + 1) )
   print(resp.json())
