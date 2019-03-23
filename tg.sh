@@ -42,6 +42,8 @@ fi
 # Telegram -> Spigot server (in)
 #
 
+python3 in.py >> json.log
+
 # get the first message from bot
 json=$(curl -s $tgURL"getUpdates?limit=1")
 
