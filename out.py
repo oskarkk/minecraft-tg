@@ -3,7 +3,7 @@ import sys, re, requests
 token = ''
 url = 'https://api.telegram.org/bot'+token+'/sendMessage'
 
-# log & chat
+# put log & chat strings to vars
 logs = [ sys.argv[1] ]
 if sys.argv[2]:
   logs.append(sys.argv[2])
@@ -18,8 +18,9 @@ for i, log in enumerate(logs):
   lines = ['\n'.join(lines[r:r+span]) for r in range(0, len(lines), span)]
 
   for li in lines:
+    # $adminID for log and $chatID or chat
     dic = {'chat_id': sys.argv[i+3], 'text': li}
-    if i == 1:
+    if i == 1:  # chat
       dic['parse_mode'] = 'Markdown'
     print(dic)
     resp = requests.post(url, json=dic)
