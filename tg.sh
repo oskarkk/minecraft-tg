@@ -25,7 +25,7 @@ while true
 do
 
 #
-# Spigot server -> Telegram
+# Spigot server -> Telegram (out)
 #
 
 # copy log files to memory
@@ -35,11 +35,11 @@ chat=`cat $chatFile`
 if [[ ! -z "$log" || ! -z "$chat" ]]; then
   > $logFile  # erase files
   > $chatFile
-  python3 tg.py "$log" "$chat" "$adminID" "$chatID" >> json.log
+  python3 out.py "$log" "$chat" "$adminID" "$chatID" >> json.log
 fi
 
 #
-# Telegram -> Spigot server
+# Telegram -> Spigot server (in)
 #
 
 # get the first message from bot
