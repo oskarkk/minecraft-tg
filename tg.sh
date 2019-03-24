@@ -24,26 +24,29 @@ chatFile="$spigot/tg/chat.temp.log"
 while true
 do
 
-#
-# Spigot server -> Telegram (out)
-#
+  #
+  # Spigot server -> Telegram (out)
+  #
 
-# copy log files to memory
-log=`cat $logFile`
-chat=`cat $chatFile`
+  # copy log files to memory
+  log=`cat $logFile`
+  chat=`cat $chatFile`
 
-if [[ ! -z "$log" || ! -z "$chat" ]]; then
-  > $logFile  # erase files
-  > $chatFile
-  python3 out.py "$log" "$chat" "$adminID" "$chatID" >> json.log
-fi
+  if [[ ! -z "$log" || ! -z "$chat" ]]; then
+    > $logFile  # erase files
+    > $chatFile
+    python3 out.py "$botToken" "$adminID" "$chatID" "$log" "$chat" >> json.log
+  fi
 
-#
-# Telegram -> Spigot server (in)
-#
+  #
+  # Telegram -> Spigot server (in)
+  #
 
-python3 in.py >> json.log
+  python3 in.py "$botToken" "$adminID" "$chatID" "$adminUsername" >> json.log
 
-# wait a second before sending requests again
-sleep 1
+  #
+  # wait a second before sending requests again
+  #
+  
+  sleep 1
 done
