@@ -42,8 +42,11 @@ do
   # Telegram -> Spigot server (in)
   #
 
-  python3 in.py "$botToken" "$adminID" "$chatID" "$adminUsername" >> json.log
-
+  formattedLines=`python3 in.py "$botToken" "$adminID" "$chatID" "$adminUsername"`
+  if [[ ! -z "$formattedLines" ]]; then
+    screen -p 0 -S spigot -X eval "stuff "'\042'"$formattedLines"'\042'"\\015"
+  fi
+  
   #
   # wait a second before sending requests again
   #
