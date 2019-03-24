@@ -12,7 +12,7 @@ if sys.argv[5]:
   # change username font to monospace with markdown
   logs['chat'] = re.sub('(<.+>)', r'`\1`', logs['chat'], re.MULTILINE)
 
-for logType, logContent in logs:
+for logType, logContent in logs.items():
   # remove color formatting
   logContent = re.sub('[\x1B][^m]*m', '', logContent)
   lines = logContent.splitlines()
