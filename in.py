@@ -31,7 +31,7 @@ while updatesNum > 0 :
     for line in message.splitlines():
       # if the message was sent by the admin and it's a command
       if username == adminUsername and line[0] == '/' :
-        line = line[1:]  # remove slash
+        del line[0]  # remove slash
       else:
         line = 'say <<' + username + '>> ' + line
       print(line+'\n')
