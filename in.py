@@ -1,17 +1,20 @@
 import sys, re, requests
 
 token = sys.argv[1]
-url = 'https://api.telegram.org/bot'+token+'/getUpdates'
+updateURL = 'https://api.telegram.org/bot'+token+'/getUpdates'
 consoleChatID = int(sys.argv[2])
 chatChatID = int(sys.argv[3])
 adminUsername = sys.argv[4]
 
-data = requests.get(url).json()
+def getUpdates(url):
+  global updatesNum
+  global data 
+  data = requests.get(url).json()
+  with open('json.log', 'a') as f:
+    f.write(str(data)+'\n')
+  updatesNum = len(data['result'])
 
-with open('json.log', 'a') as f:
-  f.write(str(data)+'\n')
-
-updatesNum = len(data['result'])
+getUpdates(updateURL)
 
 while updatesNum > 0 :
   for update in data['result']:
@@ -38,7 +41,4 @@ while updatesNum > 0 :
 
   # get the next updates
   lastID = data['result'][-1]['update_id']
-  data = requests.get( url+'?offset='+str(lastID + 1) ).json()
-  with open('json.log', 'a') as f:
-    f.write(str(data)+'\n')
-  updatesNum = len(data['result'])
+  getUpdates( updateURL+'?offset='+str(lastID + 1) )
