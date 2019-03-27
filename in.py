@@ -1,4 +1,4 @@
-import sys, re, requests
+import sys, re, requests, users
 
 token = sys.argv[1]
 updateURL = 'https://api.telegram.org/bot'+token+'/getUpdates'
@@ -25,7 +25,14 @@ while updatesNum > 0 :
       continue
 
     messageChatID = update['message']['chat']['id']
+    chatType = update['message']['chat']['type']
     username = update['message']['from']['username']
+
+    if chatType == 'private':
+      if message == '/start':
+        users.add(username)
+      elif message == '/stop':
+        users.add(username)
 
     # check if message is from "console" or "chat" chat
     if messageChatID not in [consoleChatID, chatChatID]:
