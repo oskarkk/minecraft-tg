@@ -16,3 +16,9 @@ def add(name):
     if name in namesList: return
     namesList.append(name)
     save(namesList)
+
+def remove(name):
+    namesList = get()
+    if name in namesList:
+        namesList.remove(name)
+        save(namesList)
