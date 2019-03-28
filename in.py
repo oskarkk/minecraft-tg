@@ -32,7 +32,7 @@ while updatesNum > 0 :
       if message == '/start':
         users.add(username)
       elif message == '/stop':
-        users.add(username)
+        users.remove(username)
 
     # check if message is from "console" or "chat" chat
     if messageChatID not in [consoleChatID, chatChatID]:
