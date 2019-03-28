@@ -3,7 +3,9 @@ filename = 'users.csv'
 def get():
     try:
         with open(filename, 'r+') as f:
-            return f.read().replace('\n','').split(',')
+            x = f.read().replace('\n','')
+            if not x: return []
+            return x.split(',')
     except FileNotFoundError:
         return []
 
