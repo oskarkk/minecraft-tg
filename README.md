@@ -1,6 +1,6 @@
 # minecraft-tg
 
-Bash/python script which links chats in Telegram messenger with in-game chat on Spigot Minecraft server and allows sending commands to Spigot remotely. 
+Bash/python script which links chats in Telegram messenger with in-game chat on Spigot Minecraft server and allows sending commands to Spigot remotely. Optionally it also sends notifications every time someone logs in/out to Telegram users which send "/start" command to the bot.
 
 Every chat message on the Minecraft server is sent to the selected Telegram chat and every message from that chat is sent to the Minecraft server. Another selected chat gets the entire server log sent to it live.
 
@@ -19,6 +19,8 @@ You must copy log4j2.xml to your server's directory and change the command you'r
 Now you can run tg.sh. When you will send message to the bot, it will appear in Spigot with some small delay (usually 0.5-2s).
 
 If you want tg.sh to run automatically with system startup you can use the spigottg.service file.
+
+When someone will start a private converstion with the bot, the bot will start sending messages to that user every time when someone logs in or out. To stop this, the user must stop the bot by clicking "Stop bot" in converstion settings or send "/stop" command to the bot. The latter way is preferred as only then the bot stops trying to send notifications to the user. 
 
 # Files
 

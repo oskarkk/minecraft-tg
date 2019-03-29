@@ -10,42 +10,49 @@ def getUpdates(url):
   global updatesNum
   global data 
   data = requests.get(url).json()
-  with open('json.log', 'a') as f:
-    f.write(str(data)+'\n')
+  # writeToLog(data)
   updatesNum = len(data['result'])
 
 getUpdates(updateURL)
 
+# tg gives max 100 updates
+# get more updates till there are none
 while updatesNum > 0 :
   for update in data['result']:
-    # go to the next update unless the update is a message and has text
     try:
+      # get content of the message
       message = update['message']['text']
     except KeyError:
+      # if key doesn't exist, discard update and go to the next update
       continue
 
     messageChatID = update['message']['chat']['id']
     chatType = update['message']['chat']['type']
     username = update['message']['from']['username']
 
+    # check if private message is a command for login notifications
     if chatType == 'private':
+      tg.log(update)
       if message == '/start':
         users.add(messageChatID)
-        tg.send(token,messageChatID,'Włączono powiadomienia o logowaniach')
+        tg.send(token, messageChatID, 'Włączono powiadomienia o logowaniach')
       elif message == '/stop':
         users.remove(messageChatID)
-        tg.send(token,messageChatID,'Wyłączono powiadomienia o logowaniach')
+        tg.send(token, messageChatID, 'Wyłączono powiadomienia o logowaniach')
 
-    # check if message is from "console" or "chat" chat
+    # discard message if it isn't from "console" or "chat" chat
     if messageChatID not in [consoleChatID, chatChatID]:
       continue
 
     for line in message.splitlines():
       # if the message was sent by the admin and it's a command
       if username == adminUsername and line[0] == '/' :
-        line = line[1:]  # remove slash
+        # remove slash
+        line = line[1:]
       else:
+        # add username and Minecraft command "say"
         line = 'say <<' + username + '>> ' + line
+      # send messages to output (which is passed to gnu screen)
       print(line+'\n')
 
   # get the next updates
