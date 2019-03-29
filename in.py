@@ -1,4 +1,4 @@
-import sys, re, requests, users
+import sys, re, requests, users, telegram as tg
 
 token = sys.argv[1]
 updateURL = 'https://api.telegram.org/bot'+token+'/getUpdates'
@@ -31,8 +31,10 @@ while updatesNum > 0 :
     if chatType == 'private':
       if message == '/start':
         users.add(username)
+        tg.send(token,messageChatID,'Włączono powiadomienia o logowaniach')
       elif message == '/stop':
         users.remove(username)
+        tg.send(token,messageChatID,'Wyłączono powiadomienia o logowaniach')
 
     # check if message is from "console" or "chat" chat
     if messageChatID not in [consoleChatID, chatChatID]:
