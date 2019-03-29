@@ -1,4 +1,4 @@
-import sys, re, requests, telegram as tg
+import sys, re, requests, users, telegram as tg
 
 token = sys.argv[1]
 consoleChatID = sys.argv[2]
@@ -24,3 +24,13 @@ for logType, logContent in logs.items():
     else:  # chat log
       resp = tg.send(token, chatChatID, li, 'Markdown')
     print(resp)
+
+loginsAndLogouts = []
+re.sub('(\[.*\]).*\[.*\]:(.*\[.*\]){0,1}','\1',logs['console'], re.MULTILINE)
+for li in logContent.splitlines():
+  if 'logged in!' in li or 'left the game' in li: loginsAndLogouts.append(li)
+  
+if loginsAndLogouts: 
+  loginsAndLogouts = '\n'.join(loginsAndLogouts)
+  for userID in users.get():
+    tg.send(token, userID, loginsAndLogouts)
