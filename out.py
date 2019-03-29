@@ -1,7 +1,6 @@
-import sys, re, requests
+import sys, re, requests, telegram as tg
 
 token = sys.argv[1]
-url = 'https://api.telegram.org/bot'+token+'/sendMessage'
 consoleChatID = sys.argv[2]
 chatChatID = sys.argv[3]
 
@@ -21,9 +20,7 @@ for logType, logContent in logs.items():
 
   for li in lines:
     if logType == 'console':  # console log
-      dic = {'chat_id': consoleChatID, 'text': li}
+      resp = tg.send(token, consoleChatID, li)
     else:  # chat log
-      dic = {'chat_id': chatChatID, 'text': li, 'parse_mode': 'Markdown'}
-    print(dic)
-    resp = requests.post(url, json=dic)
-    print(resp.json())
+      resp = tg.send(token, chatChatID, li, 'Markdown')
+    print(resp)
