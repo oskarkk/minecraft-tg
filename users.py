@@ -13,14 +13,16 @@ def save(x):
     with open(filename, 'w') as f:
         f.write(','.join(x))
 
-def add(name):
-    namesList = get()
-    if name in namesList: return
-    namesList.append(name)
-    save(namesList)
+def add(id):
+    id = str(id)
+    idList = get()
+    if id in idList: return
+    idList.append(id)
+    save(idList)
 
-def remove(name):
-    namesList = get()
-    if name in namesList:
-        namesList.remove(name)
-        save(namesList)
+def remove(id):
+    id = str(id)
+    idList = get()
+    if id in idList:
+        idList.remove(id)
+        save(idList)

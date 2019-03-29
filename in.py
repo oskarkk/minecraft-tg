@@ -30,10 +30,10 @@ while updatesNum > 0 :
 
     if chatType == 'private':
       if message == '/start':
-        users.add(username)
+        users.add(messageChatID)
         tg.send(token,messageChatID,'Włączono powiadomienia o logowaniach')
       elif message == '/stop':
-        users.remove(username)
+        users.remove(messageChatID)
         tg.send(token,messageChatID,'Wyłączono powiadomienia o logowaniach')
 
     # check if message is from "console" or "chat" chat
