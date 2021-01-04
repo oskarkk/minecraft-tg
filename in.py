@@ -28,7 +28,12 @@ while updatesNum > 0 :
 
     messageChatID = update['message']['chat']['id']
     chatType = update['message']['chat']['type']
-    username = update['message']['from']['username']
+    # try block added 2021-01
+    # after user without username caused endless spam on the server
+    try:
+      username = update['message']['from']['username']
+    except KeyError:
+      username = update['message']['from']['first_name']
 
     # check if private message is a command for login notifications
     if chatType == 'private':

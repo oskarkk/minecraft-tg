@@ -3,7 +3,7 @@
 # Telegram bot's token
 botToken=""
 # spigot directory absolute path with slash at the end
-spigot="/home/mcserver/spigot/"
+spigot="/home/mc/spigot"
 # user who will be able to send commands
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
@@ -15,9 +15,9 @@ adminID=""
 # bot API URL
 tgURL="https://api.telegram.org/bot"$botToken"/"
 # spigot log file relative path
-logFile="$spigot/tg/temp.log"
+logFile=$spigot'/tg/temp.log'
 # chat log file relative path
-chatFile="$spigot/tg/chat.temp.log"
+chatFile=$spigot'/tg/chat.temp.log'
 
 
 # infinite loop
@@ -44,7 +44,8 @@ do
 
   formattedLines=`python3 in.py "$botToken" "$adminID" "$chatID" "$adminUsername"`
   if [[ ! -z "$formattedLines" ]]; then
-    screen -p 0 -S spigot -X eval "stuff "'\042'"$formattedLines"'\042'"\\015"
+    sudo -u mc /home/mc/command.sh "$formattedLines"
+#    screen -p 0 -S mc/spigot -X eval "stuff "'\042'"$formattedLines"'\042'"\\015"
   fi
   
   #

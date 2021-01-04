@@ -16,17 +16,15 @@ for logType, logContent in logs.items():
   logContent = re.sub('[\x1B][^m]*m', '', logContent)
   lines = logContent.splitlines()
   span = 20  # how many lines per message
-  # join every <span> lines 
+  # join every <span> lines
   joinedLines = ['\n'.join(lines[r:r+span]) for r in range(0, len(lines), span)]
 
   # send logs to the respective chats
   for lines in joinedLines:
     if logType == 'console':  # console log
-      resp = tg.send(token, consoleChatID, lines)
+      tg.send(token, consoleChatID, lines)
     else:  # chat log
-      resp = tg.send(token, chatChatID, lines, 'Markdown')
-    # print tg server response
-    print(resp)
+      tg.send(token, chatChatID, lines, 'Markdown')
 
 loginsAndLogouts = []
 # this doesn't work because the time is already stripped:
@@ -37,7 +35,7 @@ for li in logContent.splitlines():
   if 'logged in!' in li or 'left the game' in li: loginsAndLogouts.append(li)
 
 # send these lines to every "subscribing" user
-if loginsAndLogouts: 
+if loginsAndLogouts:
   loginsAndLogouts = '\n'.join(loginsAndLogouts)
   for userID in users.get():
-    print(tg.send(token, userID, loginsAndLogouts))
+    tg.send(token, userID, loginsAndLogouts)
