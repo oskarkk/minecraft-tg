@@ -32,7 +32,7 @@ loginsAndLogouts = []
 
 # choose only lines with logging in and out
 for li in logContent.splitlines():
-  if 'logged in!' in li or 'left the game' in li: loginsAndLogouts.append(li)
+  if 'logged in with entity id' in li or 'left the game' in li: loginsAndLogouts.append(li)
 
 # send these lines to every "subscribing" user
 if loginsAndLogouts:
