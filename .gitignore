@@ -2,3 +2,4 @@
 json.log
 service.log
 users.csv
+__pycache__

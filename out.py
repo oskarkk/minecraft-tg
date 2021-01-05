@@ -35,7 +35,7 @@ for li in logContent.splitlines():
   if 'logged in with entity id' in li:
     user = li.split('[',1)[0]
     loginsAndLogouts.append(user+' logged in')
-  else if 'left the game' in li:
+  elif 'left the game' in li:
     loginsAndLogouts.append(li)
 
 # send these lines to every "subscribing" user
