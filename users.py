@@ -1,4 +1,4 @@
-filename = 'users.csv'
+filename = 'data/users.csv'
 
 def get():
     try:

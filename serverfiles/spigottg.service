@@ -1,0 +1,19 @@
+[Unit]
+Description=Spigot Telegram Bot
+After=network.target
+
+[Service]
+WorkingDirectory=/home/bot/tg/
+#PrivateUsers=true
+User=bot
+Group=bot
+ProtectSystem=full
+
+ExecStart=/bin/bash -c '/home/bot/tg/tg.sh >> /home/bot/tg/data/service.log 2>&1'
+#ExecStopPost=
+
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target

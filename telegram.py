@@ -1,7 +1,7 @@
 import requests
 
 def log(text):
-  with open('json.log', 'a') as f:
+  with open('data/json.log', 'a') as f:
     f.write(str(text)+'\n')
 
 def send(token, id, text, parse_mode=0):

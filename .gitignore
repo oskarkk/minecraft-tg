@@ -1,5 +1,3 @@
 .vscode
-json.log
-service.log
-users.csv
+data/
 __pycache__

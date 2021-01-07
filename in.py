@@ -56,7 +56,7 @@ while updatesNum > 0 :
         line = line[1:]
       else:
         # add username and Minecraft command "say"
-        line = 'say <<' + username + '>> ' + line
+        line = 'tellraw @a "<<' + username + '>> ' + line + '"'
       # send messages to output (which is passed to gnu screen)
       print(line+'\n')
 

@@ -1,0 +1,35 @@
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+WorkingDirectory=/home/mc/spigot/
+#PrivateUsers=true
+User=mc
+Group=mc
+ProtectSystem=full
+#ProtectHome=true
+#ProtectHome=false
+
+TimeoutStartSec=120
+Nice=-12
+
+ExecStart=/bin/bash -c '/home/mc/spigot/start.sh'
+
+# If set to mixed, the SIGTERM signal is sent to the main process while 
+# the subsequent SIGKILL signal is sent to all remaining processes of 
+# the unit's control group
+
+# If processes still remain after the main process of a unit has exited or
+# the delay configured via the TimeoutStopSec= has passed, the termination
+# request is repeated with the SIGKILL signal
+KillMode=mixed
+
+# defaults to 90s
+TimeoutStopSec=90s
+
+Restart=on-failure
+RestartSec=60s
+
+[Install]
+WantedBy=multi-user.target

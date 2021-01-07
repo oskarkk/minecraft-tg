@@ -35,7 +35,7 @@ do
   if [[ ! -z "$log" || ! -z "$chat" ]]; then
     > $logFile  # erase files
     > $chatFile
-    python3 out.py "$botToken" "$adminID" "$chatID" "$log" "$chat" >> json.log
+    python3 out.py "$botToken" "$adminID" "$chatID" "$log" "$chat" >> data/json.log
   fi
 
   #
@@ -44,8 +44,12 @@ do
 
   formattedLines=`python3 in.py "$botToken" "$adminID" "$chatID" "$adminUsername"`
   if [[ ! -z "$formattedLines" ]]; then
+    # screen -X won't work with other users, it's a bug which has been fixed after
+    # something like 10 years, after I reminded the screen developers of that bug in 2020.
+    # The fix hasn't been released yet so I must use sudo to execute commands in other users' screen
     sudo -u mc /home/mc/command.sh "$formattedLines"
-#    screen -p 0 -S mc/spigot -X eval "stuff "'\042'"$formattedLines"'\042'"\\015"
+    # the old way, I don't know why it was that complicated
+    # screen -p 0 -S mc/spigot -X eval "stuff "'\042'"$formattedLines"'\042'"\\015"
   fi
   
   #
