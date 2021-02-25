@@ -32,7 +32,7 @@ while updatesNum > 0 :
     # try block added 2021-01
     # after user without username caused endless spam on the server
     try:
-      username = update['message']['from']['username']
+      username = '@' + update['message']['from']['username']
     except KeyError:
       username = update['message']['from']['first_name']
 
@@ -56,6 +56,9 @@ while updatesNum > 0 :
         # remove slash
         line = line[1:]
       else:
+        line = line.replace('^','\^')
+        line = line.replace('"','')
+        line = line.replace('\\','')
         # add username, hour and Minecraft command "say"
         line = 'tellraw @a "' + datetime.now().strftime('%H:%M ') + '<<' + username + '>> ' + line + '"'
       # send messages to output (which is passed to gnu screen)
