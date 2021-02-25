@@ -1,4 +1,5 @@
 import sys, re, requests, users, telegram as tg
+from datetime import datetime
 
 token = sys.argv[1]
 updateURL = 'https://api.telegram.org/bot'+token+'/getUpdates'
@@ -55,8 +56,8 @@ while updatesNum > 0 :
         # remove slash
         line = line[1:]
       else:
-        # add username and Minecraft command "say"
-        line = 'tellraw @a "<<' + username + '>> ' + line + '"'
+        # add username, hour and Minecraft command "say"
+        line = 'tellraw @a "' + datetime.now().strftime('%H:%M ') + '<<' + username + '>> ' + line + '"'
       # send messages to output (which is passed to gnu screen)
       print(line+'\n')
 

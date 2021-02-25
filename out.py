@@ -9,7 +9,7 @@ logs = {'console': sys.argv[4]}
 if sys.argv[5]:
   logs['chat'] = sys.argv[5]
   # change username font to monospace with markdown and strip timestamp
-  logs['chat'] = re.sub('[0-9]{2}:[0-9]{2} (<.+>)', r'`\1`', logs['chat'], re.MULTILINE)
+  logs['chat'] = re.sub('[0-9]{2}:[0-9]{2} (<.+?>)', r'`\1`', logs['chat'], re.MULTILINE)
 
 for logType, logContent in logs.items():
   # remove color formatting
