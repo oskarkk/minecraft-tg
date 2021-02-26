@@ -56,7 +56,7 @@ while updatesNum > 0 :
         # remove slash
         line = line[1:]
       else:
-        line = line.replace('^','\^')
+        line = line.replace('^','\^') # without this you can stop server by sending just ^C
         line = line.replace('"','')
         line = line.replace('\\','')
         # add username, hour and Minecraft command "say"
