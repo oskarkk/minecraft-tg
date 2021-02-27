@@ -9,7 +9,7 @@ adminUsername = sys.argv[4]
 
 def getUpdates(url):
   global updatesNum
-  global data 
+  global data
   data = requests.get(url).json()
   # writeToLog(data)
   updatesNum = len(data['result'])
@@ -32,9 +32,13 @@ while updatesNum > 0 :
     # try block added 2021-01
     # after user without username caused endless spam on the server
     try:
-      username = '@' + update['message']['from']['username']
+      username = update['message']['from']['username']
+      displayname = '@' + username
     except KeyError:
-      username = update['message']['from']['first_name']
+      username = None
+      displayname = update['message']['from']['first_name']
+      if lastname := update['message']['from'].get('last_name'):
+        displayname += ' ' + lastname
 
     # check if private message is a command for login notifications
     if chatType == 'private':
@@ -60,7 +64,8 @@ while updatesNum > 0 :
         line = line.replace('"','')
         line = line.replace('\\','')
         # add username, hour and Minecraft command "say"
-        line = 'tellraw @a "' + datetime.now().strftime('%H:%M ') + '<<' + username + '>> ' + line + '"'
+        time = datetime.now().strftime('%H:%M')
+        line = 'tellraw @a "' + time + ' <<' + displayname + '>> ' + line + '"'
       # send messages to output (which is passed to gnu screen)
       print(line+'\n')
 
