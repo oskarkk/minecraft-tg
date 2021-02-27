@@ -23,20 +23,32 @@ for logType, logContent in logs.items():
     else:  # chat log
       tg.send(conf.token, conf.chatID, lines, 'Markdown')
 
-loginsAndLogouts = []
-# this doesn't work because the time is already stripped:
-# re.sub(r'(\[.*\]).*\[.*\]:(.*\[.*\]){0,1}',r'\1', logs['console'], re.MULTILINE)
+try:
+  with open('data/users.txt', 'r') as file:
+    usersOnline = {line[:-1] for line in file}
+except FileNotFoundError:
+  usersOnline = set()
+
+loginsAndLogouts = ''
 
 # choose only lines with logging in and out
-for li in logContent.splitlines():
-  if 'logged in with entity id' in li:
-    user = li.split('[',1)[0]
-    loginsAndLogouts.append(user+' logged in')
-  elif 'left the game' in li:
-    loginsAndLogouts.append(li)
+for line in logs['console'].splitlines():
+  if 'logged in with entity id' in line:
+    user = line.split('[',1)[0]
+    usersOnline.add(user)
+    loginsAndLogouts += user + ' wszedł do gry!\n'
+  elif 'left the game' in line:
+    user = line.split(' left the',1)[0]
+    usersOnline.discard(user)
+    loginsAndLogouts += user + ' wyszedł z gry\n'
 
-# send these lines to every "subscribing" user
+# send these lines to the channel
 if loginsAndLogouts:
-  loginsAndLogouts = '\n'.join(loginsAndLogouts)
-  for userID in users.get():
-    tg.send(conf.token, userID, loginsAndLogouts)
+  #loginsAndLogouts = '\n'.join(loginsAndLogouts)
+  tg.send(conf.token, conf.channelID, loginsAndLogouts)
+  tg.chatTitle(conf.token, conf.channelID, 'Wieliczka (' + str(len(usersOnline)) + ' online)')
+  with open('data/users.txt', 'w') as file:
+    out = ''
+    for user in usersOnline:
+      out += user + '\n'
+    file.write(out)
