@@ -1,9 +1,8 @@
-import sys, re, requests
+import re, requests
 from datetime import datetime
 
 import users, telegram as tg, config as conf
 
-token = sys.argv[1]
 updateURL = 'https://api.telegram.org/bot' + conf.token + '/getUpdates'
 
 def getUpdates(url):
@@ -44,10 +43,10 @@ while updatesNum > 0 :
       tg.log(update)
       if message == '/start':
         users.add(messageChatID)
-        tg.send(token, messageChatID, 'Włączono powiadomienia o logowaniach')
+        tg.send(conf.token, messageChatID, 'Włączono powiadomienia o logowaniach')
       elif message == '/stop':
         users.remove(messageChatID)
-        tg.send(token, messageChatID, 'Wyłączono powiadomienia o logowaniach')
+        tg.send(conf.token, messageChatID, 'Wyłączono powiadomienia o logowaniach')
 
     # discard message if it isn't from "console" or "chat" chat
     if messageChatID not in [conf.consoleID, conf.chatID]:
