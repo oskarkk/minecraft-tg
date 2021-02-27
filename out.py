@@ -1,13 +1,10 @@
-import sys, re, requests, users, telegram as tg
-
-token = sys.argv[1]
-consoleChatID = sys.argv[2]
-chatChatID = sys.argv[3]
+import sys, re, requests
+import users, telegram as tg, config as conf
 
 # put log & chat strings to vars
-logs = {'console': sys.argv[4]}
-if sys.argv[5]:
-  logs['chat'] = sys.argv[5]
+logs = {'console': sys.argv[1]}
+if sys.argv[2]:
+  logs['chat'] = sys.argv[2]
   # change username font to monospace with markdown and strip timestamp
   logs['chat'] = re.sub('[0-9]{2}:[0-9]{2} (<.+?>)', r'`\1`', logs['chat'], re.MULTILINE)
 
@@ -22,9 +19,9 @@ for logType, logContent in logs.items():
   # send logs to the respective chats
   for lines in joinedLines:
     if logType == 'console':  # console log
-      tg.send(token, consoleChatID, lines)
+      tg.send(conf.token, conf.consoleID, lines)
     else:  # chat log
-      tg.send(token, chatChatID, lines, 'Markdown')
+      tg.send(conf.token, conf.chatID, lines, 'Markdown')
 
 loginsAndLogouts = []
 # this doesn't work because the time is already stripped:
@@ -42,4 +39,4 @@ for li in logContent.splitlines():
 if loginsAndLogouts:
   loginsAndLogouts = '\n'.join(loginsAndLogouts)
   for userID in users.get():
-    tg.send(token, userID, loginsAndLogouts)
+    tg.send(conf.token, userID, loginsAndLogouts)

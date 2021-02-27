@@ -1,11 +1,10 @@
-import sys, re, requests, users, telegram as tg
+import sys, re, requests
 from datetime import datetime
 
+import users, telegram as tg, config as conf
+
 token = sys.argv[1]
-updateURL = 'https://api.telegram.org/bot'+token+'/getUpdates'
-consoleChatID = int(sys.argv[2])
-chatChatID = int(sys.argv[3])
-adminUsername = sys.argv[4]
+updateURL = 'https://api.telegram.org/bot' + conf.token + '/getUpdates'
 
 def getUpdates(url):
   global updatesNum
@@ -51,12 +50,12 @@ while updatesNum > 0 :
         tg.send(token, messageChatID, 'Wyłączono powiadomienia o logowaniach')
 
     # discard message if it isn't from "console" or "chat" chat
-    if messageChatID not in [consoleChatID, chatChatID]:
+    if messageChatID not in [conf.consoleID, conf.chatID]:
       continue
 
     for line in message.splitlines():
       # if the message was sent by the admin and it's a command
-      if username == adminUsername and line[0] == '/' :
+      if username == conf.adminUsername and line[0] == '/' :
         # remove slash
         line = line[1:]
       else:
