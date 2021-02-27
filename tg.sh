@@ -4,7 +4,7 @@
 botToken=""
 # spigot directory absolute path with slash at the end
 spigot="/home/mc/spigot"
-# user who will be able to send commands
+# username of the user who will be able to send commands, prepended with @
 adminUsername=""
 # ID of chat which will get messages from Minecraft (user or group)
 chatID=""
