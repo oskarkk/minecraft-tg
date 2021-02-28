@@ -36,11 +36,11 @@ for line in logs['console'].splitlines():
   if 'logged in with entity id' in line:
     user = line.split('[',1)[0]
     usersOnline.add(user)
-    loginsAndLogouts += user + ' wszedł do gry!\n'
+    loginsAndLogouts += '✅  ' + user + ' wszedł do gry!\n'
   elif 'left the game' in line:
     user = line.split(' left the',1)[0]
     usersOnline.discard(user)
-    loginsAndLogouts += user + ' wyszedł z gry\n'
+    loginsAndLogouts += '❌  ' + user + ' wyszedł z gry\n'
 
 # send these lines to the channel
 if loginsAndLogouts:
