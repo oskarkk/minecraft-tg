@@ -45,7 +45,8 @@ while updatesNum > 0 :
     for line in message.splitlines():
       # if the message was sent by the admin and it's a command
       if username == conf.adminUsername and line[0] == '/' :
-        line = line[1:]  # remove slash
+        # remove slash and bot's name
+        line = line[1:].replace('@OskarkBot', '')
       else:
         line = line.replace('^','\^')  # without this you can stop server by sending just ^C
         line = line.replace('"','')
