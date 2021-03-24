@@ -8,6 +8,10 @@ If selected user (admin) starts his message on Telegram with slash, it's sent to
 
 Script in action: https://imgur.com/a/yRjor (screenshots outdated a little)
 
+#### WARNING!
+
+Thais is a very dumb way to do this, but it works for me almost 24/7 since 2018. This should be a Java plugin, but initially I wrote it in only bash (with `jq`), and later managed to move most of the code to python. There are multiple problems with this approach - it's difficult to set up, inefficient, there are problems with strings, interaction with the console... Don't take this as an example, it's like a duct tape solution.
+
 # Usage
 
 [First you must make a Telegram bot for your server.](https://core.telegram.org/bots#6-botfather) It's very easy, no coding required, everything's in the Telegram app. When you're done, start chat with your bot or make a group (and make your bot admin of that group so it can see the messages). Then you must edit tg.sh and put chat IDs and other configuration variables at the start of the file.
