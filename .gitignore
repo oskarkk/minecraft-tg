@@ -1,3 +1,5 @@
 .vscode
 data/
 __pycache__
+*.save
+config.py

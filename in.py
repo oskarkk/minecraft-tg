@@ -30,10 +30,12 @@ while updatesNum > 0 :
     # after user without username caused endless spam on the server
     try:
       username = update['message']['from']['username']
-      displayname = '@' + username
+      displayname = '§3@§l' + username
+      if username == conf.adminUsername:
+        displayname = '§6[Prezes] ' + displayname
     except KeyError:
       username = None
-      displayname = update['message']['from']['first_name']
+      displayname = '§3§l'+update['message']['from']['first_name']
       if lastname := update['message']['from'].get('last_name'):
         displayname += ' ' + lastname
 
@@ -45,16 +47,20 @@ while updatesNum > 0 :
     for line in message.splitlines():
       # if the message was sent by the admin and it's a command
       if username == conf.adminUsername and line[0] == '/' :
-        line = line[1:]  # remove slash
+        # remove slash and bot's name
+        output = line[1:].replace('@OskarkBot', '')
       else:
         line = line.replace('^','\^')  # without this you can stop server by sending just ^C
         line = line.replace('"','')
         line = line.replace('\\','')
-        # add username, hour and Minecraft command "say"
+        # add username, hour and Minecraft command "tellraw"
         time = datetime.now().strftime('%H:%M')
-        line = 'tellraw @a "' + time + ' <<' + displayname + '>> ' + line + '"'
+        minecraft = 'tellraw @a "' + time + ' ' + displayname + '§r §l>§r ' + line + '"\n'
+        # add broadcast to Discord
+        discord = 'discord broadcast [TG] ' + displayname + ' » ' + line + '\n'
+        output = minecraft + discord
       # send messages to output (which is passed to gnu screen)
-      print(line+'\n')
+      print(output)
 
   # get the next updates
   lastID = data['result'][-1]['update_id']

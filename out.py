@@ -1,12 +1,18 @@
 import sys, re, requests
 import users, telegram as tg, config as conf
 
+admin_call = re.compile(r'(.+: `.*\b(admin|prezes|prezesie)\b)', re.IGNORECASE)
+discord = re.compile('Chat: \[Discord]')
+message_prefix = re.compile('([0-9]{2}:[0-9]{2} )?(\[Discord] )?(.+?) > ', re.MULTILINE)
+
 # put log & chat strings to vars
 logs = {'console': sys.argv[1]}
 if sys.argv[2]:
   logs['chat'] = sys.argv[2]
   # change username font to monospace with markdown and strip timestamp
-  logs['chat'] = re.sub('[0-9]{2}:[0-9]{2} (<.+?>)', r'`\1`', logs['chat'], re.MULTILINE)
+  logs['chat'] = discord.sub('[Discord]', logs['chat'])
+  logs['chat'] = message_prefix.sub(r'`\2\3: `', logs['chat'])
+  logs['chat'] = admin_call.sub(r'\1 \[@' + conf.adminUsername + ']', logs['chat'])
 
 for logType, logContent in logs.items():
   # remove color formatting
