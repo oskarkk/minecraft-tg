@@ -1,11 +1,12 @@
 from requests import post, get
 from datetime import datetime as time
+from config import token
 
 def log(text):
   with open('data/json.log', 'a') as f:
     f.write( str(time.now()) + " " + str(text) + '\n' )
 
-def api(token, method, request, data=None):
+def api(method, request, data=None):
   url = 'https://api.telegram.org/bot' + token + '/' + method
   if data: log(data)
   if request == post:
@@ -18,21 +19,21 @@ def api(token, method, request, data=None):
     log(resp)
   return resp
 
-def getUpdates(token, offset=None):
+def getUpdates(offset=None):
   data = None
   if offset:
     data = '?offset=' + str(offset)
-  return api(token, 'getUpdates', get, data)
+  return api('getUpdates', get, data)
 
-def send(token, id, text, parse_mode=None):
+def send(id, text, parse_mode=None):
   dic = {'chat_id': id, 'text': text}
   if parse_mode: dic['parse_mode'] = parse_mode
-  api(token, 'sendMessage', post, dic)
+  api('sendMessage', post, dic)
 
-def chatTitle(token, id, title):
+def chatTitle(id, title):
   dic = {'chat_id': id, 'title': title}
-  api(token, 'setChatTitle', post, dic)
+  api('setChatTitle', post, dic)
 
-def delete(token, chat, message):
+def delete(chat, message):
   dic = {'chat_id': chat, 'message_id': message}
-  api(token, 'deleteMessage', post, dic)
+  api('deleteMessage', post, dic)
