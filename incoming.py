@@ -1,7 +1,5 @@
-import re, requests
 from datetime import datetime
-
-import telegram as tg, config as conf
+import telegram as tg, config as cfg
 
 def from_tg():
 	data = tg.getUpdates()
@@ -13,10 +11,10 @@ def from_tg():
 	while updatesNum > 0 :
 		for update in data['result']:
 			try:
-				if update['channel_post']['chat']['username'] == conf.channelID[1:]:
+				if update['channel_post']['chat']['username'] == cfg.channelID[1:]:
 					if 'new_chat_title' in update['channel_post']:
 						postID = update['channel_post']['message_id']
-						tg.delete(conf.channelID, postID)
+						tg.delete(cfg.channelID, postID)
 			except KeyError:
 				pass
 
@@ -33,7 +31,7 @@ def from_tg():
 			try:
 				username = update['message']['from']['username']
 				displayname = '§3@§l' + username
-				if username == conf.adminUsername:
+				if username == cfg.tgAdminUsername:
 					displayname = '§6[Prezes] ' + displayname
 			except KeyError:
 				username = None
@@ -42,13 +40,13 @@ def from_tg():
 					displayname += ' ' + lastname
 
 			# discard message if it isn't from "console" or "chat" chat
-			if chatID not in [conf.consoleID, conf.chatID]: continue
+			if chatID not in [cfg.consoleID, cfg.chatID]: continue
 			# discard messages from linked channel
 			if displayname == 'Telegram': continue
 
 			for line in message.splitlines():
 				# if the message was sent by the admin and it's a command
-				if username == conf.adminUsername and line[0] == '/' :
+				if username == cfg.tgAdminUsername and line[0] == '/' :
 					# remove slash and bot's name
 					output += line[1:].replace('@OskarkBot', '')
 				else:

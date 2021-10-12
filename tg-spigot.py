@@ -23,14 +23,18 @@ def init():
                 'spigot_path = ""',
                 "# Telegram bot's token",
                 'token = ""',
-                '# username (w/o @) of the user who will be able to send commands',
-                'adminUsername = ""',
+                '# tg username (w/o @) of the user who will be able to send commands',
+                'tgAdminUsername = "wanours"',
+                '# minecraft username of admin',
+                'mcAdminUsername = "okarkalic"',
                 '# ID of chat which will get messages from Minecraft (user or group)',
                 'chatID = 0',
                 '# ID of chat which will get the entire content of the spigot console (user or group)',
                 'consoleID = 0',
                 '# @username of channel with login/logout messages',
                 'channelID = "@"',
+                '# whole words triggering admin mention, separated by vert lines',
+                'triggers = "admin|admina"',
             ]))
         print('config genereated - fill it and restart')
 
