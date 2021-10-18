@@ -2,7 +2,7 @@ from datetime import datetime
 import telegram as tg, config as cfg
 
 def from_tg():
-	data = tg.getUpdates()
+	data = tg.getUpdates(timeout=300)
 	updatesNum = len(data['result'])
 	output = ''
 
@@ -62,7 +62,7 @@ def from_tg():
 
 		# get the next updates
 		lastID = data['result'][-1]['update_id']
-		data = tg.getUpdates(lastID + 1)
+		data = tg.getUpdates(timeout=0, offset=(lastID + 1))
 		updatesNum = len(data['result'])
 	
 	# return messages (which are passed to gnu screen)

@@ -19,10 +19,10 @@ def api(method, request, data=None):
     log(resp)
   return resp
 
-def getUpdates(offset=None):
-  data = None
+def getUpdates(timeout=0, offset=None):
+  data = '?timeout=' + str(timeout)
   if offset:
-    data = '?offset=' + str(offset)
+    data += '&offset=' + str(offset)
   return api('getUpdates', get, data)
 
 def send(id, text, parse_mode=None):
