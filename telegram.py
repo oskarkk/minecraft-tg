@@ -1,4 +1,5 @@
 from requests import post, get
+from requests.exceptions import RequestException
 from datetime import datetime as time
 from config import token
 
@@ -9,11 +10,17 @@ def log(text):
 def api(method, request, data=None):
   url = 'https://api.telegram.org/bot' + token + '/' + method
   if data: log(data)
-  if request == post:
-    resp = request(url, json=data).json()
-  elif request == get:
-    if data: url += data
-    resp = request(url).json()
+  while True:
+    try:
+      if request == post:
+        resp = request(url, json=data).json()
+      elif request == get:
+        if data: url += data
+        resp = request(url).json()
+      break
+    except RequestException as e:
+      continue
+    
   # if not {'ok': True, 'result': []}
   if not resp.get('ok') or resp.get('result'):
     log(resp)
