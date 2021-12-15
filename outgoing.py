@@ -5,7 +5,7 @@ import telegram as tg, config as cfg
 regex_admin_mention = r'(.+: `.*\b(' + cfg.triggers + r')\b)'
 
 re_admin_mention = re.compile(regex_admin_mention, re.IGNORECASE | re.MULTILINE)
-re_message_prefix = re.compile('([0-9]{2}:[0-9]{2} )?(\[Discord] )?(.+?) > ', re.MULTILINE)
+re_message_prefix = re.compile('([0-9]{2}:[0-9]{2} )?(\[Dsc] )?(.+?) > ', re.MULTILINE)
 re_color_formatting = re.compile('[\x1B][^m]*m', re.MULTILINE)
 
 re_login = re.compile(r'^(\w*)\[.* logged in with entity id')
@@ -16,7 +16,7 @@ def to_tg(console, chat):
     # put log & chat strings to vars
     logs = {cfg.consoleID: console}
     if chat:
-        chat = chat.replace('Chat: [Discord]', '[Discord]')
+        chat = chat.replace('Chat: [Dsc]', '[Dsc]')
         # change username font to monospace with markdown and strip timestamp
         chat = re_message_prefix.sub(r'`\2\3: `', chat)
         chat = re_admin_mention.sub(r'\1 \[@' + cfg.tgAdminUsername + ']', chat)
