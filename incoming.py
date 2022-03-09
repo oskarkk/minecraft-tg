@@ -1,20 +1,27 @@
 from datetime import datetime
-import telegram as tg, config as cfg
+import logging as log
+
+import telegram as tg
+import config as cfg
+
 
 def from_tg():
-	data = tg.getUpdates(timeout=300)
+	data = tg.getUpdates(timeout=cfg.timeout)
 	updatesNum = len(data['result'])
-	output = ''
+	commands = []
 
 	# tg gives max 100 updates
 	# get more updates till there are none
 	while updatesNum > 0 :
+		log.debug(f"updates from tg: {data['result']}")
 		for update in data['result']:
 			try:
 				if update['channel_post']['chat']['username'] == cfg.channelID[1:]:
-					if 'new_chat_title' in update['channel_post']:
-						postID = update['channel_post']['message_id']
-						tg.delete(cfg.channelID, postID)
+					newtitle = update['channel_post']['new_chat_title']
+					log.info(f"new chat title found: {newtitle}")
+					postID = update['channel_post']['message_id']
+					tg.delete(cfg.channelID, postID)
+					continue
 			except KeyError:
 				pass
 
@@ -48,22 +55,25 @@ def from_tg():
 				# if the message was sent by the admin and it's a command
 				if username == cfg.tgAdminUsername and line[0] == '/' :
 					# remove slash and bot's name
-					output += line[1:].replace('@OskarkBot', '')
+					commands.append(line[1:].replace('@OskarkBot', ''))
 				else:
 					line = line.replace('^','\^')  # without this you can stop server by sending just ^C
 					line = line.replace('"','')
 					line = line.replace('\\','')
 					# add username, hour and Minecraft command "tellraw"
 					time = datetime.now().strftime('%H:%M')
-					minecraft = 'tellraw @a "' + time + ' ' + displayname + '§r §l>§r ' + line + '"\n'
+					minecraft = f'tellraw @a "{time} {displayname}§r §l>§r {line}"'
 					# add broadcast to Discord
-					discord = 'discord broadcast [TG] ' + displayname + ' » ' + line + '\n'
-					output += minecraft + discord
+					discord = f'discord broadcast [TG] {displayname} » {line}'
+					commands += [minecraft, discord]
 
 		# get the next updates
 		lastID = data['result'][-1]['update_id']
 		data = tg.getUpdates(timeout=0, offset=(lastID + 1))
 		updatesNum = len(data['result'])
 	
+	for command in commands:
+		log.info(f'command: {command}')
+
 	# return messages (which are passed to gnu screen)
-	return output
+	return '\n'.join(commands)

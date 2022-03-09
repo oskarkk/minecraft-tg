@@ -2,14 +2,19 @@ from requests import post, get
 from requests.exceptions import RequestException
 from datetime import datetime as time
 from config import token
+import logging as log
+from time import sleep
 
-def log(text):
+
+def logg(text):
   with open('data/json.log', 'a') as f:
     f.write( str(time.now()) + " " + str(text) + '\n' )
 
+
 def api(method, request, data=None):
   url = 'https://api.telegram.org/bot' + token + '/' + method
-  if data: log(data)
+  log.debug(f'request: {method} {data}')
+  
   while True:
     try:
       if request == post:
@@ -19,12 +24,18 @@ def api(method, request, data=None):
         resp = request(url).json()
       break
     except RequestException as e:
+      log.error(e)
+      sleep(1)
       continue
     
   # if not {'ok': True, 'result': []}
-  if not resp.get('ok') or resp.get('result'):
-    log(resp)
+  if not resp.get('ok'):
+    log.error(resp)
+  elif not resp['result']:
+    log.debug('no updates')
+
   return resp
+
 
 def getUpdates(timeout=0, offset=None):
   data = '?timeout=' + str(timeout)
@@ -32,15 +43,18 @@ def getUpdates(timeout=0, offset=None):
     data += '&offset=' + str(offset)
   return api('getUpdates', get, data)
 
+
 def send(id, text, parse_mode=None):
   dic = {'chat_id': id, 'text': text}
   if parse_mode: dic['parse_mode'] = parse_mode
-  api('sendMessage', post, dic)
+  return api('sendMessage', post, dic)
+
 
 def chatTitle(id, title):
   dic = {'chat_id': id, 'title': title}
-  api('setChatTitle', post, dic)
+  return api('setChatTitle', post, dic)
+
 
 def delete(chat, message):
   dic = {'chat_id': chat, 'message_id': message}
-  api('deleteMessage', post, dic)
+  return api('deleteMessage', post, dic)

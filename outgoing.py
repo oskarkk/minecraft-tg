@@ -1,5 +1,8 @@
 import re
-import telegram as tg, config as cfg
+import logging as log
+
+import telegram as tg
+import config as cfg
 
 
 regex_admin_mention = r'(.+: `.*\b(' + cfg.triggers + r')\b)'
@@ -35,43 +38,59 @@ def to_tg(console, chat):
         for lines in joined_lines:
             tg.send(chat_id, lines, markdown)
 
-    try:
-        with open('data/users.txt', 'r') as file:
-            users_online = {line[:-1] for line in file}
-    except FileNotFoundError:
-        users_online = set()
+    logins_logouts(console)
 
-    logins_logouts = ''
+
+def logins_logouts(console_log):
+    user_logins = []
+    user_logouts = []
+
+    admin = cfg.mcAdminUsername
 
     # choose only lines with logging in and out
-    for line in logs[cfg.consoleID].splitlines():
+    for line in console_log.splitlines():
         # 'logged in with entity id' in line
         if login := re_login.match(line):
             user = login.group(1)
-            if user == cfg.mcAdminUsername: continue
-            users_online.add(user)
-            logins_logouts += '✅  ' + user + ' wszedł do gry!\n'
+            if user == admin: continue
+            user_logins.append(user)
         elif logout := re_logout.match(line):
             user = logout.group(1)
-            if user == cfg.mcAdminUsername: continue
-            users_online.discard(user)
-            logins_logouts += '❌  ' + user + ' wyszedł z gry\n'
+            if user == admin: continue
+            user_logouts.append(user)
         elif line.startswith('Prezes zstąpił na Wieliczkę.'):
-            user = cfg.mcAdminUsername
-            users_online.add(user)
-            logins_logouts += '✅  ' + user + ' wszedł do gry!\n'
+            user_logins.append(admin)
         elif line.startswith('Prezes opuścił grę.'):
-            user = cfg.mcAdminUsername
+            user_logouts.append(admin)
+
+    if not (user_logins or user_logouts):
+        return
+
+    with open('data/users.txt', 'r') as file:
+        users_online = {line[:-1] for line in file}
+
+    logins_logouts_message = ''
+
+    if user_logins:
+        log.info(f'logged in: {user_logins}')
+        for user in user_logins:
+            users_online.add(user)
+            logins_logouts_message += f'✅  {user} wszedł do gry!\n'
+            
+    if user_logouts:
+        log.info(f'logged in: {user_logouts}')
+        for user in user_logouts:
             users_online.discard(user)
-            logins_logouts += '❌  ' + user + ' wyszedł z gry\n'
+            logins_logouts_message += f'❌  {user} wyszedł z gry\n'
 
     # send these lines to the channel
-    if logins_logouts:
+    if logins_logouts_message:
         #loginsAndLogouts = '\n'.join(loginsAndLogouts)
-        tg.send(cfg.channelID, logins_logouts)
-        tg.chatTitle(cfg.channelID, 'Wieliczka (' + str(len(users_online)) + ' online)')
+        tg.send(cfg.channelID, logins_logouts_message)
+
+        newtitle = f'Wieliczka ({len(users_online)} online)'
+        tg.chatTitle(cfg.channelID, newtitle)
+        log.info(f'new title: {newtitle}')
+
         with open('data/users.txt', 'w') as file:
-            out = ''
-            for user in users_online:
-                out += user + '\n'
-            file.write(out)
+            file.write('\n'.join(users_online) + '\n')

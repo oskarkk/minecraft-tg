@@ -1,15 +1,42 @@
-from os import chdir, path
+import os
 import time
+import subprocess
+import threading
+import logging as log
+import sys
+import signal
+import requests
+
 from incoming import from_tg
 from outgoing import to_tg
-import subprocess
-from multiprocessing import Process
 
-bot_dir = path.dirname(path.realpath(__file__))
-chdir(bot_dir)
+
+log.basicConfig(
+    format='%(asctime)s [%(levelname)s %(threadName)s] %(message)s',
+    handlers=[
+        log.FileHandler('data/bot.log'),
+        log.StreamHandler(sys.stdout)
+    ],
+    level=log.DEBUG
+)
+# remove "Starting new HTTPS connection" etc.
+log.getLogger('urllib3').setLevel(log.INFO)
+
+
+def log_exit(sig, *args):
+    log.info(f"bot stopped: {sig} {signal.strsignal(sig)}\n\n")
+    os._exit(0)
+
+
+for sig in (signal.SIGABRT, signal.SIGINT, signal.SIGTERM):
+    signal.signal(sig, log_exit)
+
+bot_dir = os.path.dirname(os.path.realpath(__file__))
+os.chdir(bot_dir)
+
 
 def get_cfg():
-    if path.exists('config.py'):
+    if os.path.exists('config.py'):
         global cfg
         import config as cfg
     else:
@@ -31,9 +58,12 @@ def get_cfg():
                 'channelID = "@"',
                 '# whole words triggering admin mention, separated by vert lines',
                 'triggers = "admin|admina"',
+                '# request timeout in seconds (appears that max is 50 or so)',
+                'timeout = 300'
             ]))
-        print('config genereated - fill it and restart')
+        log.warning('config genereated - fill it and restart')
         exit()
+
 
 def from_tg_loop():
     while True:
@@ -44,27 +74,47 @@ def from_tg_loop():
             # The fix hasn't been released yet so I must use sudo to execute commands in other users' screen
             subprocess.run(['sudo', '-u', 'mc', '/home/mc/command.sh', formatted_lines])
 
-def to_tg_loop():
-    log_file = cfg.spigot_path + '/tg/temp.log'
-    chat_file = cfg.spigot_path + '/tg/chat.temp.log'
 
+def to_tg_loop():
+    mc_log_file = cfg.spigot_path + '/tg/temp.log'
+    mc_chat_file = cfg.spigot_path + '/tg/chat.temp.log'
+    
     while True:
-        with open(log_file, 'r+') as l, open(chat_file, 'r+') as c:
-            log = l.read()
-            chat = c.read()
+        with open(mc_log_file, 'r+') as l, open(mc_chat_file, 'r+') as c:
+            mc_log = l.read()
+            mc_chat = c.read()
 
             l.truncate(0)
             c.truncate(0)
 
-        if log or chat:
-            resp = to_tg(log, chat)
-            if resp: open('data/json.log', 'a').write(resp)
+        if mc_log or mc_chat:
+            to_tg(mc_log, mc_chat)
 
         time.sleep(0.2)
 
+
 if __name__ == '__main__':
+    log.info(" ")
+    log.info("  BOT STARTED")
+    log.info(" ")
     get_cfg()
-    f = Process(target=from_tg_loop)
-    t = Process(target=to_tg_loop)
-    f.start()
-    t.start()
+
+    # reset online users (user count will be inaccurate)
+    with open('data/users.txt', 'w') as file:
+        pass
+
+    def handle_exception(exc_type, exc_value, exc_traceback):
+        if issubclass(exc_type, KeyboardInterrupt):
+            return
+
+        log.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+
+    sys.excepthook = handle_exception
+    threading.excepthook = handle_exception
+
+    in_thread = threading.Thread(target=from_tg_loop)
+    in_thread.name = "from_tg"
+    out_thread = threading.Thread(target=to_tg_loop)
+    out_thread.name = "to_tg"
+    in_thread.start()
+    out_thread.start()
