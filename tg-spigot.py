@@ -5,7 +5,6 @@ import threading
 import logging as log
 import sys
 import signal
-import requests
 
 from incoming import from_tg
 from outgoing import to_tg
@@ -13,11 +12,8 @@ from outgoing import to_tg
 
 log.basicConfig(
     format='%(asctime)s [%(levelname)s %(threadName)s] %(message)s',
-    handlers=[
-        log.FileHandler('data/bot.log'),
-        log.StreamHandler(sys.stdout)
-    ],
-    level=log.DEBUG
+    handlers=[log.FileHandler('data/bot.log'), log.StreamHandler(sys.stdout)],
+    level=log.DEBUG,
 )
 # remove "Starting new HTTPS connection" etc.
 log.getLogger('urllib3').setLevel(log.INFO)
@@ -41,26 +37,30 @@ def get_cfg():
         import config as cfg
     else:
         with open('config.py', 'w') as f:
-            f.write('\n'.join([
-                "# Spigot server's path without slash at the end",
-                'spigot_path = ""',
-                "# Telegram bot's token",
-                'token = ""',
-                '# tg username (w/o @) of the user who will be able to send commands',
-                'tgAdminUsername = "wanours"',
-                '# minecraft username of admin',
-                'mcAdminUsername = "okarkalic"',
-                '# ID of chat which will get messages from Minecraft (user or group)',
-                'chatID = 0',
-                '# ID of chat which will get the entire content of the spigot console (user or group)',
-                'consoleID = 0',
-                '# @username of channel with login/logout messages',
-                'channelID = "@"',
-                '# whole words triggering admin mention, separated by vert lines',
-                'triggers = "admin|admina"',
-                '# request timeout in seconds (appears that max is 50 or so)',
-                'timeout = 300'
-            ]))
+            f.write(
+                '\n'.join(
+                    [
+                        "# Spigot server's path without slash at the end",
+                        'spigot_path = ""',
+                        "# Telegram bot's token",
+                        'token = ""',
+                        '# tg username (w/o @) of the user who will be able to send commands',
+                        'tgAdminUsername = "wanours"',
+                        '# minecraft username of admin',
+                        'mcAdminUsername = "okarkalic"',
+                        '# ID of chat which will get messages from Minecraft (user or group)',
+                        'chatID = 0',
+                        '# ID of chat which will get the entire content of the spigot console (user or group)',
+                        'consoleID = 0',
+                        '# @username of channel with login/logout messages',
+                        'channelID = "@"',
+                        '# whole words triggering admin mention, separated by vert lines',
+                        'triggers = "admin|admina"',
+                        '# request timeout in seconds (appears that max is 50 or so)',
+                        'timeout = 300',
+                    ]
+                )
+            )
         log.warning('config genereated - fill it and restart')
         exit()
 
@@ -78,7 +78,7 @@ def from_tg_loop():
 def to_tg_loop():
     mc_log_file = cfg.spigot_path + '/tg/temp.log'
     mc_chat_file = cfg.spigot_path + '/tg/chat.temp.log'
-    
+
     while True:
         with open(mc_log_file, 'r+') as l, open(mc_chat_file, 'r+') as c:
             mc_log = l.read()

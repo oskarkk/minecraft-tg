@@ -17,13 +17,13 @@ re_logout = re.compile(r'^(\w*) lost connection: ')
 
 def to_tg(console, chat):
     # put log & chat strings to vars
-    logs = {cfg.consoleID: console}
+    logs = {cfg.console_id: console}
     if chat:
         chat = chat.replace('Chat: [Dsc]', '[Dsc]')
         # change username font to monospace with markdown and strip timestamp
         chat = re_message_prefix.sub(r'`\2\3: `', chat)
-        chat = re_admin_mention.sub(r'\1 \[@' + cfg.tgAdminUsername + ']', chat)
-        logs[cfg.chatID] = chat
+        chat = re_admin_mention.sub(r'\1 \[@' + cfg.tg_admin_username + ']', chat)
+        logs[cfg.chat_id] = chat
 
     for chat_id, msg_content in logs.items():
         # remove color formatting
@@ -31,9 +31,11 @@ def to_tg(console, chat):
         lines = msg_content.splitlines()
         span = 20  # how many lines per message
         # join every <span> lines
-        joined_lines = ['\n'.join(lines[r:r+span]) for r in range(0, len(lines), span)]
+        joined_lines = [
+            '\n'.join(lines[r : r + span]) for r in range(0, len(lines), span)
+        ]
 
-        markdown = 'Markdown' if chat_id == cfg.chatID else None
+        markdown = 'Markdown' if chat_id == cfg.chat_id else None
         # send logs to the respective chats
         for lines in joined_lines:
             tg.send(chat_id, lines, markdown)
@@ -45,18 +47,20 @@ def logins_logouts(console_log):
     user_logins = []
     user_logouts = []
 
-    admin = cfg.mcAdminUsername
+    admin = cfg.mc_admin_username
 
     # choose only lines with logging in and out
     for line in console_log.splitlines():
         # 'logged in with entity id' in line
         if login := re_login.match(line):
             user = login.group(1)
-            if user == admin: continue
+            if user == admin:
+                continue
             user_logins.append(user)
         elif logout := re_logout.match(line):
             user = logout.group(1)
-            if user == admin: continue
+            if user == admin:
+                continue
             user_logouts.append(user)
         elif line.startswith('Prezes zstąpił na Wieliczkę.'):
             user_logins.append(admin)
@@ -76,7 +80,7 @@ def logins_logouts(console_log):
         for user in user_logins:
             users_online.add(user)
             logins_logouts_message += f'✅  {user} wszedł do gry!\n'
-            
+
     if user_logouts:
         log.info(f'logged in: {user_logouts}')
         for user in user_logouts:
@@ -85,11 +89,11 @@ def logins_logouts(console_log):
 
     # send these lines to the channel
     if logins_logouts_message:
-        #loginsAndLogouts = '\n'.join(loginsAndLogouts)
-        tg.send(cfg.channelID, logins_logouts_message)
+        # loginsAndLogouts = '\n'.join(loginsAndLogouts)
+        tg.send(cfg.channel_id, logins_logouts_message)
 
         newtitle = f'Wieliczka ({len(users_online)} online)'
-        tg.chatTitle(cfg.channelID, newtitle)
+        tg.chat_title(cfg.channel_id, newtitle)
         log.info(f'new title: {newtitle}')
 
         with open('data/users.txt', 'w') as file:
