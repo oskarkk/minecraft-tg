@@ -45,15 +45,15 @@ def get_cfg():
                         "# Telegram bot's token",
                         'token = ""',
                         '# tg username (w/o @) of the user who will be able to send commands',
-                        'tgAdminUsername = "wanours"',
+                        'tg_admin_username = "wanours"',
                         '# minecraft username of admin',
-                        'mcAdminUsername = "okarkalic"',
+                        'mc_admin_username = "okarkalic"',
                         '# ID of chat which will get messages from Minecraft (user or group)',
-                        'chatID = 0',
+                        'chat_id = 0',
                         '# ID of chat which will get the entire content of the spigot console (user or group)',
-                        'consoleID = 0',
+                        'console_id = 0',
                         '# @username of channel with login/logout messages',
-                        'channelID = "@"',
+                        'channel_id = "@"',
                         '# whole words triggering admin mention, separated by vert lines',
                         'triggers = "admin|admina"',
                         '# request timeout in seconds (appears that max is 50 or so)',
@@ -103,14 +103,21 @@ if __name__ == '__main__':
     with open('data/users.txt', 'w') as file:
         pass
 
-    def handle_exception(exc_type, exc_value, exc_traceback):
+    def handle_exception(exc_type, exc_value, exc_traceback, thread=None):
         if issubclass(exc_type, KeyboardInterrupt):
             return
 
-        log.error("Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback))
+        in_thread = f" in thread {thread}" if thread else ""
+        log.error(
+            f"Uncaught exception{in_thread}",
+            exc_info=(exc_type, exc_value, exc_traceback),
+        )
+
+    def handle_threading_exception(args):
+        handle_exception(args.exc_type, args.exc_value, args.exc_traceback, args.thread)
 
     sys.excepthook = handle_exception
-    threading.excepthook = handle_exception
+    threading.excepthook = handle_threading_exception
 
     in_thread = threading.Thread(target=from_tg_loop)
     in_thread.name = "from_tg"
